@@ -1,0 +1,84 @@
+from typing import List, Dict, Optional
+from functools import reduce
+import pandas as pd
+
+class Student:
+    """Represents a student with name, course, ID, and grades."""
+    def __init__(self, name: str, course: str, student_id: str, grades: Optional[List[int]] = None):
+        self.name = name
+        self.course = course
+        self.student_id = student_id
+        self._grades = grades if grades is not None else []
+        print(f"Student {self.name} ({self.student_id}) enrolled in {self.course}.")
+
+    def add_grade(self, grade: int):
+        """Add a grade to the student's record."""
+        if 0 <= grade <= 100:
+            self._grades.append(grade)
+            print(f"Mark {grade} added for {self.name}.")
+        else:
+            print(f"Error: Mark {grade} is outside the valid range (0-100).")
+
+    def calculate_average(self) -> float:
+        """Calculate the average grade using reduce."""
+        if not self._grades:
+            return 0.0
+        total = reduce(lambda acc, g: acc + g, self._grades, 0)
+        return total / len(self._grades)
+
+    def predict_performance(self) -> Dict[str, str]:
+        """Predicts performance based on average grade."""
+        avg = self.calculate_average()
+        if avg >= 80:
+            performance = "Excellent - First Class Honours (A)"
+        elif avg >= 70:
+            performance = "Strong - Upper Second Class Honours (B)"
+        elif avg >= 50:
+            performance = "Satisfactory - Lower Second Class Honours (C)"
+        elif avg >= 40:
+            performance = "Needs Improvement - Passing but at risk (D)"
+        else:
+            performance = "Critical - At risk of failing the module (F)"
+        return {"average_grade": f"{avg:.2f}", "prediction": performance}
+
+    def __str__(self):
+        return f"{self.name} ({self.course}) - Average: {self.calculate_average():.2f}"
+
+def analyze_student_data(students: List[Student]):
+    """Analyze student data using Pandas."""
+    print("\n-------------------------------------  UPTM STUDENT ANALYSIS  ------------------------------------")
+    data = list(map(lambda s: 
+    {
+        'Name': s.name,
+        'Course': s.course,
+        'StudentID': s.student_id,
+        'AverageMark': s.calculate_average(),
+        'Prediction': s.predict_performance()['prediction']
+    }, students))
+    df = pd.DataFrame(data)
+    # Format AverageMark column as string with "%" (for display only)
+    df['AverageMark'] = df['AverageMark'].map(lambda x: f"{x:.2f}%")
+    print(df.to_string(index=False))
+    # Use numeric data for overall average
+    overall_avg = round(df['AverageMark'].str.replace('%','').astype(float).mean(), 2)
+    print("\nOverall Average:", f"{overall_avg}%")
+    # --- Main Program (acts like main.py) ---
+    
+def run_demo():
+    """Demonstrates how to use the Student class and analysis function."""
+    print("\n-----------------  UPTM UNIVERSITY MODULE -------------------")
+    student_a = Student("Nur Alya Aqilah", "CT204", "AM2508111554", [92, 88, 95])
+    student_b = Student("Siti Nor Munirah", "CT206", "AM2508332859", [65, 52, 70])
+    student_c = Student("Farah Nurlaili", "CT203", "AM2508020117", [35, 40, 28])
+    students = [student_a, student_b, student_c]
+
+    for s in students:
+        prediction = s.predict_performance()
+        print(f"\n{s.name} ({s.course})")
+        print(f"  Average: {prediction['average_grade']}%")
+        print(f"  Prediction: {prediction['prediction']}")
+
+    analyze_student_data(students)
+
+if __name__ == "__main__":
+    run_demo()
