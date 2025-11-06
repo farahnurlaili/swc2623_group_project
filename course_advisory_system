@@ -1,0 +1,38 @@
+%FACTS 
+%student(StudentName, StudentID) 
+student(moon,25080103).
+student(farli,25080201).
+student(alya,25080302).
+ 
+%enrolled(StudentID, CourseCode) 
+enrolled(25080103,mmc110). 
+enrolled(25080103,mmc112). 
+enrolled(25080201,mmc110). 
+enrolled(25080302,mmc110). 
+enrolled(25080302,mmc112). 
+enrolled(25080302,mmc113). 
+ 
+%prerequisite(CourseCode, Prereq_CourseCode) 
+prerequisite(mmc112,mmc110). 
+prerequisite(mmc113,mmc112). 
+prerequisite(mmc116,mmc113). 
+ 
+%RULE
+%Check if student completed a previous course.
+completed(StudentID,CourseCode):-enrolled(StudentID,CourseCode). 
+ 
+%Check if student is eligible for a course only when all prereq are completed.
+eligible(StudentID,CourseCode):- prerequisite(CourseCode,Prereq_CourseCode),completed(StudentID,Prereq_CourseCode). eligible( _,CourseCode):- \+ prerequisite(CourseCode, _). 
+%^ No prerequisite means eligible.
+% The '_' is the anonymous variable in Prolog, it represents a variable that the value is not needed in the line. 
+ 
+%Recommend suitable courses for next semester based on completed prerequisites.
+recommend_course(StudentID,CourseCode):- eligible(StudentID,CourseCode), \+ enrolled(StudentID,CourseCode). 
+ 
+%List of required courses for graduation.
+requiredcourse_grad(mmc110). 
+requiredcourse_grad(mmc112). 
+requiredcourse_grad(mmc113). 
+ 
+%Check if student is eligible for graduation which the student already completed all the courses. 
+eligible_graduation(StudentID):- student(_,StudentID), forall(requiredcourse_grad(CourseCode), completed(StudentID, CourseCode)). 
