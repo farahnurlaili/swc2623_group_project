@@ -1,0 +1,47 @@
+-- Define a list of students and their grades in several subjects
+-- Each student is represented as a tuple: (Name, [List of Marks])
+students :: [(String, [Int])]
+students =
+    [ ("Aizat", [85, 90, 88, 92])
+    , ("Daniel", [70, 75, 72, 78])
+    , ("Alya", [92, 95, 94, 97])
+, ("Sarah", [60, 65, 58, 63])
+, ("Mai", [78, 65, 89, 91])
+    ]
+ 
+-- Function to calculate average
+-- Converts integer sums and counts into floating-point values for accuracy
+average :: [Int] -> Float
+average xs = fromIntegral (sum xs) / fromIntegral (length xs)
+ 
+-- Calculate each student's average grade using a list comprehension
+-- Produces a list of tuples: (Name, AverageMark)
+studentAverages :: [(String, Float)]
+studentAverages = [(name, average grades) | (name, grades) <- students]
+
+-- Identify students with distinction (average > 80)
+-- Filters the studentAverages list to include only top performers
+distinctions :: [(String, Float)]
+distinctions = [(name, avg) | (name, avg) <- studentAverages, avg > 80]
+ 
+-- Find the top-performing student using foldl
+-- Compares each student's average and keeps the one with the highest score
+topStudent :: (String, Float)
+topStudent = foldl pickHigher ("", 0) studentAverages
+  where
+    pickHigher acc@(name1, avg1) curr@(name2, avg2)
+      | avg2 > avg1 = curr
+      | otherwise   = acc
+ 
+-- Main function: program entry point
+-- Displays all students, distinctions, and the top performer
+main :: IO ()
+main = do
+    putStrLn "Student Averages:"
+    mapM_ print studentAverages                       -- Print all students with their average marks
+ 
+    putStrLn "\nStudents with Distinction (Avg > 80):"
+    mapM_ print distinctions                                -- Print only students with average > 80
+ 
+    putStrLn "\nTop Performing Student:"
+	print topStudent                              -- Print the student with the highest average
